@@ -16,10 +16,11 @@ class Recipe:
 
     TOMATO = 'tomato'
     ONION = 'onion'
-    ALL_INGREDIENTS = [ONION, TOMATO]
+    CHEESE = 'cheese'
+    ALL_INGREDIENTS = [ONION, TOMATO, CHEESE]
 
     ALL_RECIPES_CACHE = {}
-    STR_REP = {'tomato': "†", 'onion': "ø"}
+    STR_REP = {'tomato': "†", 'onion': "ø", 'cheese': 'c'}
 
     _computed = False
     _configured = False
@@ -51,6 +52,7 @@ class Recipe:
     def __int__(self):
         num_tomatoes = len([_ for _ in self.ingredients if _ == Recipe.TOMATO])
         num_onions = len([_ for _ in self.ingredients if _ == Recipe.ONION])
+        num_cheese = len([_ for _ in self.ingredients if _ == Recipe.CHEESE])
 
         mixed_mask = int(bool(num_tomatoes * num_onions))
         mixed_shift = (Recipe.MAX_NUM_INGREDIENTS + 1)**len(Recipe.ALL_INGREDIENTS)
@@ -113,10 +115,11 @@ class Recipe:
             return self._delivery_reward
         if self._value_mapping and self in self._value_mapping:
             return self._value_mapping[self]
-        if self._onion_value and self._tomato_value:
+        if self._onion_value and self._tomato_value and self._cheese_value:
             num_onions = len([ingredient for ingredient in self.ingredients if ingredient == self.ONION])
             num_tomatoes = len([ingredient for ingredient in self.ingredients if ingredient == self.TOMATO])
-            return self._tomato_value * num_tomatoes + self._onion_value * num_onions
+            num_cheese = len([ingredient for ingredient in self.ingredients if ingredient == self.CHEESE])
+            return self._tomato_value * num_tomatoes + self._onion_value * num_onions + self._cheese_value*num_cheese
         return 20
 
     @property
@@ -125,10 +128,11 @@ class Recipe:
             return self._cook_time
         if self._time_mapping and self in self._time_mapping:
             return self._time_mapping[self]
-        if self._onion_time and self._tomato_time:
+        if self._onion_time and self._tomato_time and self._cheese_time:
             num_onions = len([ingredient for ingredient in self.ingredients if ingredient == self.ONION])
             num_tomatoes = len([ingredient for ingredient in self.ingredients if ingredient == self.TOMATO])
-            return self._onion_time * num_onions + self._tomato_time * num_tomatoes
+            num_tomatoes = len([ingredient for ingredient in self.ingredients if ingredient == self.CHEESE])
+            return self._onion_time * num_onions + self._tomato_time * num_tomatoes + self._cheese_time*num_cheese
         return 20
 
     def to_dict(self):
@@ -176,14 +180,20 @@ class Recipe:
         cls._onion_time = None
         cls._tomato_value = None
         cls._tomato_time = None
+        cls._cheese_value = None
+        cls._cheese_time = None
 
         ## Basic checks for validity ##
 
         # Mutual Exclusion
         if 'tomato_time' in conf and not 'onion_time' in conf or 'onion_time' in conf and not 'tomato_time' in conf:
             raise ValueError("Must specify both 'onion_time' and 'tomato_time'")
+        if 'tomato_time' in conf and not 'cheese_time' in conf or 'cheese_time' in conf and not 'tomato_time' in conf:
+            raise ValueError("Must specify both 'cheese_time' and 'tomato_time'")
         if 'tomato_value' in conf and not 'onion_value' in conf or 'onion_value' in conf and not 'tomato_value' in conf:
             raise ValueError("Must specify both 'onion_value' and 'tomato_value'")
+        if 'tomato_value' in conf and not 'cheese_value' in conf or 'cheese_value' in conf and not 'tomato_value' in conf:
+            raise ValueError("Must specify both 'cheese_value' and 'tomato_value'")
         if 'tomato_value' in conf and 'delivery_reward' in conf:
             raise ValueError("'delivery_reward' incompatible with '<ingredient>_value'")
         if 'tomato_value' in conf and 'recipe_values' in conf:
@@ -234,11 +244,17 @@ class Recipe:
         if 'onion_time' in conf:
             cls._onion_time = conf['onion_time']
 
+        if 'cheese_time' in conf:
+            cls._cheese_time = conf['cheese_time']
+
         if 'tomato_value' in conf:
             cls._tomato_value = conf['tomato_value']
 
         if 'onion_value' in conf:
             cls._onion_value = conf['onion_value']
+
+        if 'cheese_value' in conf:
+            cls._cheese_value = conf['cheese_value']
     
     @classmethod
     def generate_random_recipes(cls, n=1, min_size=2, max_size=3, ingredients=None, recipes=None, unique=True):
