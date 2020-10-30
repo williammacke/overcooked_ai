@@ -13,6 +13,8 @@
     ],
     "tomato_value" : 5,
     "onion_value" : 10,
+    "cheese_value": 5,
     "tomato_time" : 2,
-    "onion_time" : 2
+    "onion_time" : 2,
+    "cheese_time" : 2
 }

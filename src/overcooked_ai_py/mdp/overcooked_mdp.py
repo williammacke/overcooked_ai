@@ -131,7 +131,7 @@ class Recipe:
         if self._onion_time and self._tomato_time and self._cheese_time:
             num_onions = len([ingredient for ingredient in self.ingredients if ingredient == self.ONION])
             num_tomatoes = len([ingredient for ingredient in self.ingredients if ingredient == self.TOMATO])
-            num_tomatoes = len([ingredient for ingredient in self.ingredients if ingredient == self.CHEESE])
+            num_cheese = len([ingredient for ingredient in self.ingredients if ingredient == self.CHEESE])
             return self._onion_time * num_onions + self._tomato_time * num_tomatoes + self._cheese_time*num_cheese
         return 20
 
